@@ -8,8 +8,16 @@ export async function POST(request: NextRequest) {
   try {
     const { username, code } = await request.json();
 
-    const decodedUsername = decodeURIComponent(username);
-    const user = await UserModel.findOne({ username: decodedUsername });
+    const decodedUsername = decodeURIComponent(username || '').trim();
+    const cleanCode = (code || '').trim();
+
+    // Find user case-insensitively by either username or email
+    const user = await UserModel.findOne({
+      $or: [
+        { username: { $regex: new RegExp(`^${decodedUsername}$`, 'i') } },
+        { email: { $regex: new RegExp(`^${decodedUsername}$`, 'i') } },
+      ],
+    });
 
     if (!user) {
       return NextResponse.json(
@@ -19,7 +27,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Check if the code is correct and not expired
-    const isCodeValid = user.verifyCode === code;
+    const isCodeValid = user.verifyCode.trim() === cleanCode;
     const isCodeNotExpired = new Date(user.verifyCodeExpiry) > new Date();
 
     if (isCodeValid && isCodeNotExpired) {

@@ -16,10 +16,11 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials: any): Promise<any> {
         await dbConnect();
         try {
+          const cleanIdentifier = credentials?.identifier?.trim();
           const user = await UserModel.findOne({
             $or: [
-              { email: credentials?.identifier },
-              { username: credentials?.identifier },
+              { email: { $regex: new RegExp(`^${cleanIdentifier}$`, 'i') } },
+              { username: { $regex: new RegExp(`^${cleanIdentifier}$`, 'i') } },
             ],
           });
 

@@ -38,7 +38,7 @@ export async function GET(request: NextRequest) {
     const { username } = result.data;
 
     const existingVerifiedUser = await UserModel.findOne({
-      username,
+      username: { $regex: new RegExp(`^${username?.trim()}$`, 'i') },
       isVerified: true,
     });
 

@@ -9,9 +9,11 @@ export async function POST(request: NextRequest) {
 
   try {
     const { username, email, password } = await request.json();
+    const cleanUsername = username?.trim();
+    const cleanEmail = email?.toLowerCase().trim();
 
     const existingVerifiedUserByUsername = await UserModel.findOne({
-      username,
+      username: { $regex: new RegExp(`^${cleanUsername}$`, 'i') },
       isVerified: true,
     });
 
@@ -25,7 +27,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const existingUserByEmail = await UserModel.findOne({ email });
+    const existingUserByEmail = await UserModel.findOne({ email: cleanEmail });
     const verifyCode = Math.floor(100000 + Math.random() * 900000).toString();
 
     if (existingUserByEmail) {
@@ -39,6 +41,7 @@ export async function POST(request: NextRequest) {
         );
       } else {
         const hashedPassword = await bcrypt.hash(password, 10);
+        existingUserByEmail.username = cleanUsername;
         existingUserByEmail.password = hashedPassword;
         existingUserByEmail.verifyCode = verifyCode;
         existingUserByEmail.verifyCodeExpiry = new Date(
@@ -52,8 +55,8 @@ export async function POST(request: NextRequest) {
       expiryDate.setHours(expiryDate.getHours() + 1);
 
       const newUser = new UserModel({
-        username,
-        email,
+        username: cleanUsername,
+        email: cleanEmail,
         password: hashedPassword,
         verifyCode,
         verifyCodeExpiry: expiryDate,
@@ -67,8 +70,8 @@ export async function POST(request: NextRequest) {
 
     // Send verification email
     const emailResponse = await sendVerificationEmail(
-      email,
-      username,
+      cleanEmail,
+      cleanUsername,
       verifyCode
     );
 
