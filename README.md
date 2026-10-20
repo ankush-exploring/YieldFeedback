@@ -11,7 +11,7 @@ YieldFeedback is a modern, production-ready anonymous feedback platform built wi
 - 🔒 **Completely Anonymous**: Senders require no account or authentication — honest feedback with zero names attached.
 - ⚡ **Accept Messages Toggle**: Instant real-time control to turn incoming messages on or off.
 - 🤖 **AI-Powered Suggestions**: Powered by Groq LLM (`llama-3.3-70b-versatile`) to generate inspirational feedback prompts.
-- 📬 **Email Verification**: User sign-ups secured with 6-digit OTP verification powered by Resend.
+- 📬 **Email Verification**: User sign-ups secured with 6-digit OTP verification powered by Brevo.
 - 🛡️ **Robust Authentication**: Credentials-based auth using NextAuth with JWT sessions.
 - 🗑️ **Message Management**: Securely view and delete received messages directly from your dashboard.
 - 🎨 **Polished Modern UI**: Built with Tailwind CSS, shadcn/ui components, and an indigo/emerald theme.
@@ -26,7 +26,7 @@ YieldFeedback is a modern, production-ready anonymous feedback platform built wi
 - **Authentication**: NextAuth.js (Credentials Provider + JWT sessions)
 - **Styling**: Tailwind CSS & shadcn/ui
 - **Validation**: Zod & React Hook Form
-- **Email**: Resend with React Email
+- **Email**: Brevo HTTP API (Port 443) with React Email
 - **AI / LLM**: Groq via `@ai-sdk/groq` & Vercel AI SDK
 
 ---
@@ -46,7 +46,8 @@ Set the following environment variables:
 | `MONGODB_URI` | MongoDB connection string (`mongodb://...` or `mongodb+srv://...`) |
 | `NEXTAUTH_SECRET` | Secret key for signing NextAuth JWT tokens |
 | `NEXTAUTH_URL` | Application base URL (e.g. `http://localhost:3000` locally) |
-| `RESEND_API_KEY` | API key from Resend for verification emails |
+| `BREVO_API_KEY` | API key from Brevo for verification emails (free, 0 domains needed) |
+| `BREVO_SENDER_EMAIL` | Your verified sender email (e.g. `your_email@gmail.com`) |
 | `GROQ_API_KEY` | API key from Groq Console for LLM suggestions |
 | `GROQ_MODEL` | Groq model identifier (default: `llama-3.3-70b-versatile`) |
 
@@ -87,7 +88,7 @@ This repository includes a `render.yaml` blueprint for one-click deployment as a
 - **Start Command**: `npm start`
 - **Environment**: Node 20
 
-Configure your secrets (`MONGODB_URI`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `RESEND_API_KEY`, `GROQ_API_KEY`) in the Render Dashboard environment settings.
+Configure your secrets (`MONGODB_URI`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `GROQ_API_KEY`) in the Render Dashboard environment settings.
 
 ---
 
