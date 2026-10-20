@@ -8,7 +8,6 @@ import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Separator } from '@/components/ui/separator';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { useCompletion } from 'ai/react';
 import {
   Form,
   FormControl,
@@ -45,23 +44,8 @@ export default function SendMessagePage() {
   const params = useParams<{ username: string }>();
   const username = params.username;
 
-  const {
-    complete,
-    completion,
-    isLoading: isSuggestLoading,
-    error: suggestError,
-  } = useCompletion({
-    api: '/api/suggest-messages',
-    initialCompletion: initialMessageString,
-    onError: (err) => {
-      toast({
-        title: 'Suggestion Error',
-        description:
-          err.message || 'Failed to fetch AI suggestions. Please try again.',
-        variant: 'destructive',
-      });
-    },
-  });
+  const [completion, setCompletion] = useState(initialMessageString);
+  const [isSuggestLoading, setIsSuggestLoading] = useState(false);
 
   const form = useForm<z.infer<typeof messageSchema>>({
     resolver: zodResolver(messageSchema),
@@ -76,10 +60,24 @@ export default function SendMessagePage() {
   const [isLoading, setIsLoading] = useState(false);
 
   const fetchSuggestedMessages = async () => {
+    setIsSuggestLoading(true);
     try {
-      await complete('');
+      const response = await axios.post<string>('/api/suggest-messages');
+      const text =
+        typeof response.data === 'string'
+          ? response.data
+          : String(response.data);
+      if (text && text.includes(specialChar)) {
+        setCompletion(text);
+      }
     } catch (err) {
-      console.error('Error fetching messages:', err);
+      toast({
+        title: 'Suggestion Error',
+        description: 'Failed to fetch new AI suggestions. Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSuggestLoading(false);
     }
   };
 
