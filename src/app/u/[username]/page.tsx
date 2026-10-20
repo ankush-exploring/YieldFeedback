@@ -27,11 +27,19 @@ import { messageSchema } from '@/schemas/messageSchema';
 import { ThemeToggle } from '@/components/ThemeToggle';
 
 const specialChar = '||';
-const parseStringMessages = (messageString: string): string[] =>
-  messageString.split(specialChar);
-
 const initialMessageString =
   'What do you think about my work?||How can I improve my communication?||Any feedback on my latest project?';
+
+const parseStringMessages = (messageString: string): string[] => {
+  if (!messageString || !messageString.trim()) {
+    return initialMessageString.split(specialChar);
+  }
+  const parts = messageString
+    .split(specialChar)
+    .map((s) => s.trim())
+    .filter(Boolean);
+  return parts.length > 0 ? parts : initialMessageString.split(specialChar);
+};
 
 export default function SendMessagePage() {
   const params = useParams<{ username: string }>();
@@ -184,7 +192,10 @@ export default function SendMessagePage() {
             disabled={isSuggestLoading}
           >
             {isSuggestLoading ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Generating…
+              </>
             ) : (
               'Suggest messages'
             )}
@@ -193,27 +204,23 @@ export default function SendMessagePage() {
         <p className="text-muted-foreground text-sm">
           Click a suggestion to use it as your message.
         </p>
-        {suggestError ? (
-          <p className="text-destructive text-sm">{suggestError.message}</p>
-        ) : (
-          <Card className="rounded-2xl">
-            <CardHeader className="pb-1 text-sm font-medium text-muted-foreground">
-              AI Suggestions
-            </CardHeader>
-            <CardContent className="flex flex-col gap-2">
-              {parseStringMessages(completion).map((message, index) => (
-                <Button
-                  key={index}
-                  variant="outline"
-                  className="text-left h-auto whitespace-normal py-2 px-3"
-                  onClick={() => handleMessageClick(message)}
-                >
-                  {message}
-                </Button>
-              ))}
-            </CardContent>
-          </Card>
-        )}
+        <Card className="rounded-2xl">
+          <CardHeader className="pb-1 text-sm font-medium text-muted-foreground">
+            AI Suggestions
+          </CardHeader>
+          <CardContent className="flex flex-col gap-2">
+            {parseStringMessages(completion).map((message, index) => (
+              <Button
+                key={index}
+                variant="outline"
+                className="text-left h-auto whitespace-normal py-2 px-3 justify-start"
+                onClick={() => handleMessageClick(message)}
+              >
+                {message}
+              </Button>
+            ))}
+          </CardContent>
+        </Card>
       </div>
 
       <Separator className="my-8" />
