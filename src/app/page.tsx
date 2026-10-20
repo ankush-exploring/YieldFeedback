@@ -4,6 +4,7 @@ import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { MessageSquare, Shield, Zap, ArrowRight } from 'lucide-react';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const sampleMessages = [
   {
@@ -54,6 +55,7 @@ export default function Home() {
             </span>
           </Link>
           <nav className="flex items-center gap-3">
+            <ThemeToggle />
             <Link href="/sign-in">
               <Button variant="ghost" size="sm">
                 Sign in

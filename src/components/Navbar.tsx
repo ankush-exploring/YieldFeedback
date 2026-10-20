@@ -4,6 +4,7 @@ import React from 'react';
 import Link from 'next/link';
 import { useSession, signOut } from 'next-auth/react';
 import { Button } from './ui/button';
+import { ThemeToggle } from './ThemeToggle';
 import { User } from 'next-auth';
 
 function Navbar() {
@@ -41,6 +42,7 @@ function Navbar() {
 
         {/* Right side */}
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           {session ? (
             <>
               <span className="hidden sm:block text-sm text-muted-foreground">

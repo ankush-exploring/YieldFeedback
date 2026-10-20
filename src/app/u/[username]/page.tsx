@@ -24,6 +24,7 @@ import { ApiResponse } from '@/types/ApiResponse';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { messageSchema } from '@/schemas/messageSchema';
+import { ThemeToggle } from '@/components/ThemeToggle';
 
 const specialChar = '||';
 const parseStringMessages = (messageString: string): string[] =>
@@ -100,7 +101,35 @@ export default function SendMessagePage() {
   };
 
   return (
-    <div className="container mx-auto my-8 p-6 max-w-2xl">
+    <div className="container mx-auto my-6 p-6 max-w-2xl">
+      <div className="flex items-center justify-between mb-8 pb-4 border-b border-border/40">
+        <Link href="/" className="flex items-center gap-2 group">
+          <svg
+            width="26"
+            height="26"
+            viewBox="0 0 32 32"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+            aria-label="YieldFeedback logo"
+          >
+            <rect width="32" height="32" rx="8" fill="hsl(243,75%,59%)" />
+            <path
+              d="M8 10 L16 22 L24 10"
+              stroke="white"
+              strokeWidth="3"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              fill="none"
+            />
+            <circle cx="16" cy="22" r="2.5" fill="hsl(158,64%,52%)" />
+          </svg>
+          <span className="text-base font-bold tracking-tight group-hover:text-primary transition-colors">
+            YieldFeedback
+          </span>
+        </Link>
+        <ThemeToggle />
+      </div>
+
       <h1 className="text-3xl font-bold mb-1 text-center">
         Send Anonymous Feedback
       </h1>
