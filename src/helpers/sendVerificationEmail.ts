@@ -1,3 +1,4 @@
+import nodemailer from 'nodemailer';
 import VerificationEmail from '../../emails/VerificationEmail';
 import { ApiResponse } from '@/types/ApiResponse';
 import { render } from '@react-email/components';
@@ -12,12 +13,12 @@ export async function sendVerificationEmail(
   console.log(`[YieldFeedback] ✉️  VERIFICATION CODE for ${username} (${email}): ${verifyCode}`);
   console.log(`======================================================\n`);
 
-  const brevoApiKey = process.env.BREVO_API_KEY;
-  const brevoSender = process.env.BREVO_SENDER_EMAIL;
+  const gmailUser = process.env.GMAIL_USER;
+  const gmailPass = process.env.GMAIL_APP_PASSWORD;
 
-  if (!brevoApiKey || !brevoSender) {
+  if (!gmailUser || !gmailPass) {
     console.warn(
-      `[YieldFeedback] Brevo not configured yet (BREVO_API_KEY or BREVO_SENDER_EMAIL missing). Use code "${verifyCode}" printed above to verify.`
+      `[YieldFeedback] Gmail SMTP not configured (GMAIL_USER or GMAIL_APP_PASSWORD missing in env). Use verification code "${verifyCode}" printed above.`
     );
     return {
       success: true,
@@ -25,49 +26,43 @@ export async function sendVerificationEmail(
     };
   }
 
-  // Send via Brevo REST API (HTTP Port 443 — works smoothly on Render with zero custom domains)
   const sendEmailTask = async (): Promise<ApiResponse> => {
     try {
+      const transporter = nodemailer.createTransport({
+        service: 'gmail',
+        auth: {
+          user: gmailUser,
+          pass: gmailPass,
+        },
+        connectionTimeout: 8000,
+        greetingTimeout: 5000,
+        socketTimeout: 8000,
+      });
+
       const emailHtml = await render(
         VerificationEmail({ username, otp: verifyCode })
       );
 
-      const res = await fetch('https://api.brevo.com/v3/smtp/email', {
-        method: 'POST',
-        headers: {
-          'api-key': brevoApiKey,
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-        body: JSON.stringify({
-          sender: { name: 'YieldFeedback', email: brevoSender },
-          to: [{ email }],
-          subject: 'YieldFeedback — Verify your account',
-          htmlContent: emailHtml,
-        }),
+      await transporter.sendMail({
+        from: `YieldFeedback <${gmailUser}>`,
+        to: email,
+        subject: 'YieldFeedback — Verify your account',
+        html: emailHtml,
       });
 
-      if (res.ok) {
-        console.log(`[YieldFeedback] Verification email delivered to ${email} via Brevo.`);
-        return { success: true, message: 'Verification email sent successfully.' };
-      } else {
-        const errorData = await res.json().catch(() => ({}));
-        console.error('[YieldFeedback] Brevo API error response:', errorData);
-        return {
-          success: true,
-          message: 'Account created! Check your email or server logs for verification code.',
-        };
-      }
-    } catch (err) {
-      console.error('[YieldFeedback] Error calling Brevo API:', err);
+      console.log(`[YieldFeedback] Verification email delivered to ${email} via Gmail SMTP.`);
+      return { success: true, message: 'Verification email sent successfully.' };
+    } catch (err: unknown) {
+      console.error('[YieldFeedback] Gmail SMTP send error:', err);
+      // Fallback gracefully so sign-up continues and user can verify via the logged OTP
       return {
         success: true,
-        message: 'Account created! Check server logs for verification code.',
+        message: 'Account created! (Verification code logged in server logs).',
       };
     }
   };
 
-  // Hard 5-second timeout so sign-up request never hangs
+  // Hard 6-second timeout race so sign-up button NEVER hangs indefinitely
   const timeoutPromise = new Promise<ApiResponse>((resolve) =>
     setTimeout(
       () =>
@@ -75,7 +70,7 @@ export async function sendVerificationEmail(
           success: true,
           message: 'Account created! Check server logs for verification code.',
         }),
-      5000
+      6000
     )
   );
 

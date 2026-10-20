@@ -14,9 +14,9 @@ services:
         sync: false
       - key: NEXTAUTH_URL
         sync: false
-      - key: BREVO_API_KEY
+      - key: GMAIL_USER
         sync: false
-      - key: BREVO_SENDER_EMAIL
+      - key: GMAIL_APP_PASSWORD
         sync: false
       - key: GROQ_API_KEY
         sync: false

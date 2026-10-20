@@ -26,7 +26,7 @@ YieldFeedback is a modern, production-ready anonymous feedback platform built wi
 - **Authentication**: NextAuth.js (Credentials Provider + JWT sessions)
 - **Styling**: Tailwind CSS & shadcn/ui
 - **Validation**: Zod & React Hook Form
-- **Email**: Brevo HTTP API (Port 443) with React Email
+- **Email**: Nodemailer (Gmail SMTP) with React Email
 - **AI / LLM**: Groq via `@ai-sdk/groq` & Vercel AI SDK
 
 ---
@@ -46,8 +46,8 @@ Set the following environment variables:
 | `MONGODB_URI` | MongoDB connection string (`mongodb://...` or `mongodb+srv://...`) |
 | `NEXTAUTH_SECRET` | Secret key for signing NextAuth JWT tokens |
 | `NEXTAUTH_URL` | Application base URL (e.g. `http://localhost:3000` locally) |
-| `BREVO_API_KEY` | API key from Brevo for verification emails (free, 0 domains needed) |
-| `BREVO_SENDER_EMAIL` | Your verified sender email (e.g. `your_email@gmail.com`) |
+| `GMAIL_USER` | Your Gmail address (`your_email@gmail.com`) |
+| `GMAIL_APP_PASSWORD` | Google 16-letter App Password |
 | `GROQ_API_KEY` | API key from Groq Console for LLM suggestions |
 | `GROQ_MODEL` | Groq model identifier (default: `llama-3.3-70b-versatile`) |
 
@@ -88,7 +88,7 @@ This repository includes a `render.yaml` blueprint for one-click deployment as a
 - **Start Command**: `npm start`
 - **Environment**: Node 20
 
-Configure your secrets (`MONGODB_URI`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `BREVO_API_KEY`, `BREVO_SENDER_EMAIL`, `GROQ_API_KEY`) in the Render Dashboard environment settings.
+Configure your secrets (`MONGODB_URI`, `NEXTAUTH_SECRET`, `NEXTAUTH_URL`, `GMAIL_USER`, `GMAIL_APP_PASSWORD`, `GROQ_API_KEY`) in the Render Dashboard environment settings.
 
 ---
 
